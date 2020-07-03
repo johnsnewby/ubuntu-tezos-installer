@@ -7,10 +7,6 @@
 # Minimum version of opam we should use. The script will check for this in /usr/local/bin and upgrade if necessary
 export MINIMUM_OPAM_VERSION=2.0.7
 
-# Set the TEZOS_USER variable to have this script create the user if it does not exist, and
-# compile the node in that user's home directory
-#TEZOS_USER=tezos
-
 # Set the TEZOS_BRANCH variable to build anything other than latest-release.
 if [ -z $TEZOS_BRANCH ]; then
     export TEZOS_BRANCH=latest-release
@@ -38,19 +34,40 @@ if [ ! -z $NEED_OPAM ]; then
     sudo chmod 755 /usr/local/bin/opam
 fi
 
-script_path=`dirname $0`
+TEZOS_DIR="tezos-$TEZOS_BRANCH"
 
-if [ ! -z $TEZOS_USER ]; then
-    exists=$(grep -c '^$TEZOS_USER:' /etc/passwd)
-    echo "exists=$exists"
-    if [ $exists -eq 0 ]; then
-        echo "Creating user $TEZOS_USER"
-        sudo adduser $TEZOS_USER
-        sudo adduser $TEZOS_USER sudo
-        cp $script_path/bootstrap-tezos2.sh /tmp
-        sudo su - $TEZOS_USER -c /tmp/bootstrap-tezos2.sh
-        rm /tmp/bootstrap2.sh
+if [ -d $TEZOS_DIR ]; then
+    if grep 'url = https://gitlab.com/tezos/tezos.git' $TEZOS_DIR/.git/config; then
+        echo "Using existing repo"
+        cd $TEZOS_DIR
+        git checkout master
+    else
+        echo "directory $TEZOS_DIR found which is not a tezos repo. Bailing."
+        exit 0
     fi
 else
-    $script_path/bootstrap-tezos2.sh
+    git clone https://gitlab.com/tezos/tezos.git $TEZOS_DIR
+    cd $TEZOS_DIR
 fi
+
+git checkout $TEZOS_BRANCH
+
+if [ -d ~/.opam ]; then
+    opam update
+else
+    opam init --comp=4.09.1 --disable-sandboxing
+fi
+
+echo "Setting up opam environment"
+
+opam switch create tezos ocaml-base-compiler.4.09.1 || true # OK if this fails
+opam switch tezos
+opam update
+eval $(opam env)
+
+echo "Compiling dependencies"
+make build-deps
+
+echo "Building"
+eval $(opam env)
+make
