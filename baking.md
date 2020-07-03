@@ -72,7 +72,7 @@ make
 
 ### Node configuration
 
-If this is just an update, you may skip this step.
+If this is just an update, you should skip this step.
 
 Generate a new identity and setup config:
 
@@ -80,6 +80,13 @@ Generate a new identity and setup config:
 ./tezos-node identity generate
 ```
 
+### Get rid of old artefacts
+
+If you're switching networks, or if you want to, you should remove the old node data:
+
+```bash
+rm -rf ~/.tezos-node/context ~/.tezos-node/store ~/.tezos-node/lock
+```
 
 ## Fast sync from a mainnet snapshot
 

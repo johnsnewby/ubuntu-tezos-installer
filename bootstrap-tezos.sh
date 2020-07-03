@@ -5,8 +5,7 @@
 # This code is licensed under the MIT License, https://opensource.org/licenses/MIT
 #
 # You may set some environment variables to change the behavior of the script. Options are
-# - TEZOS_BRANCH - defaults to latest-release, which will build the latest mainnet. Other valid options are
-#                  carthagenet, zeronet
+# - TEZOS_BRANCH - defaults to latest-release, which will build the latest mainnet.
 # - SNAPSHOT     - will populate the new node from a snapshot file. The special value 'mainnet' causes
 #                  the script to download the latest mainnet snapshot from https://github.com/Phlogi/tezos-snapshots
 #                  and install that. The special value 'carthagenet' download a recent-ish snapshot from
@@ -73,8 +72,10 @@ fi
 
 echo "Setting up opam environment"
 
-opam switch create tezos ocaml-base-compiler.4.09.1 || true # OK if this fails
-opam switch tezos
+SWITCH=tezos-$TEZOS_BRANCH
+
+opam switch create $SWITCH ocaml-base-compiler.4.09.1 || true # OK if this fails
+opam switch $SWITCH
 opam update
 eval $(opam env)
 
@@ -107,11 +108,17 @@ if [ ! -z $SNAPSHOT ]; then
         cat mainnet.full.* | xz -d -v -T0 > mainnet.importme
         rm -f mainnet.full.*
         SNAPSHOT=mainnet.importme
+	./tezos-node config init --network=mainnet
     elif [ $SNAPSHOT == 'carthagenet' ]; then
-	wget https://snaps.tulip.tools/carthagenet_2020-07-03_04:00.full -P carthagenet.importme
+	wget https://snaps.tulip.tools/carthagenet_2020-07-03_04:00.full -O carthagenet.importme
 	SNAPSHOT=carthagenet.importme
+	./tezos-node config init --network=carthagenet
     else
         SNAPSHOT=$ORIG_PWD/$SNAPSHOT
+	echo "Please enter the name of network which should be initialized:"
+	read network
+	./tezos-node config init --network=$network
     fi
+
     ./tezos-node snapshot import $SNAPSHOT
 fi
