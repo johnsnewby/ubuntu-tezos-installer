@@ -6,10 +6,11 @@
 #
 # You may set some environment variables to change the behavior of the script. Options are
 # - TEZOS_BRANCH - defaults to latest-release, which will build the latest mainnet. Other valid options are
-#                  alphanet, babylonnet, carthage
+#                  carthagenet, zeronet
 # - SNAPSHOT     - will populate the new node from a snapshot file. The special value 'mainnet' causes
 #                  the script to download the latest mainnet snapshot from https://github.com/Phlogi/tezos-snapshots
-#                  and install that.
+#                  and install that. The special value 'carthagenet' download a recent-ish snapshot from
+#                  https://snapshots.tulip.tools
 #
 set -e # halt on error
 #
@@ -42,7 +43,7 @@ ARCH=`uname -m`
 
 if [ ! -z $NEED_OPAM ]; then
     echo "Installing new opam under /usr/local/bin"
-    sudo wget -O /usr/local/bin/opam https://github.com/ocaml/opam/releases/download/2.0.7/opam-$MINIMUM_OPAM_VERSION-$ARCH-linux
+git     sudo wget -O /usr/local/bin/opam https://github.com/ocaml/opam/releases/download/2.0.7/opam-$MINIMUM_OPAM_VERSION-$ARCH-linux
     sudo chmod 755 /usr/local/bin/opam
 fi
 
@@ -106,6 +107,9 @@ if [ ! -z $SNAPSHOT ]; then
         cat mainnet.full.* | xz -d -v -T0 > mainnet.importme
         rm -f mainnet.full.*
         SNAPSHOT=mainnet.importme
+    elif [ $SNAPSHOT == 'carthagenet' ]; then
+	wget https://snaps.tulip.tools/carthagenet_2020-07-03_04:00.full -P carthagenet.importme
+	SNAPSHOT=carthagenet.importme
     else
         SNAPSHOT=$ORIG_PWD/$SNAPSHOT
     fi
