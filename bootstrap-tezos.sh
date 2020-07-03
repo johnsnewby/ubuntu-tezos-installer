@@ -6,6 +6,7 @@
 #
 # Minimum version of opam we should use. The script will check for this in /usr/local/bin and upgrade if necessary
 export MINIMUM_OPAM_VERSION=2.0.7
+ORIG_PWD=`pwd`
 
 # Set the TEZOS_BRANCH variable to build anything other than latest-release.
 if [ -z $TEZOS_BRANCH ]; then
@@ -71,3 +72,29 @@ make build-deps
 echo "Building"
 eval $(opam env)
 make
+
+# if there is no identity, make one.
+if [ ! -f ~/.tezos-node/identity.json ]; then
+    ./tezos-node identity generate
+fi
+
+# If var SNAPSHOT is set, then:
+# - if set to mainnet, download the most recent mainnet snapshot from https://github.com/Phlogi/tezos-snapshots
+# - otherwise, try to restore from the file in the variable.
+if [ ! -z $SNAPSHOT ]; then
+    if [ -f ~/.tezos-node/lock ] || [ -d ~/.tezos-node/store ] || [ -d ~/.tezos-node/context ]; then
+        echo "!!!!! Existing chain data will be overridden. Interrupt within 5 minutes to abort."
+        sleep 5
+        rm -rf ~/.tezos-node/context ~/.tezos-node/store ~/.tezos-node/lock
+    fi
+    if [ $SNAPSHOT == 'mainnet' ]; then
+        echo "Downloading mainnet snapshot"
+        curl -s https://api.github.com/repos/Phlogi/tezos-snapshots/releases/latest | jq -r ".assets[] | select(.name) | .browser_download_url" | grep full | xargs wget -q --show-progress
+        cat mainnet.full.* | xz -d -v -T0 > mainnet.importme
+        rm -f mainnet.full.*
+        SNAPSHOT=mainnet.importme
+    else
+        SNAPSHOT=$ORIG_PWD/$SNAPSHOT
+    fi
+    ./tezos-node snapshot import $SNAPSHOT
+fi
