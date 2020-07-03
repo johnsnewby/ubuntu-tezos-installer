@@ -1,8 +1,17 @@
 #!/bin/bash
 #
-# Script to install Tezos, part 1. This script install dependencies and sets up a Tezos node for you.
+# Script to install Tezos. This script install dependencies and sets up a Tezos node for you.
+# (c) 2020 Tz Connect GmbH.
+# This code is licensed under the MIT License, https://opensource.org/licenses/MIT
 #
-#set -e # halt on error
+# You may set some environment variables to change the behavior of the script. Options are
+# - TEZOS_BRANCH - defaults to latest-release, which will build the latest mainnet. Other valid options are
+#                  alphanet, babylonnet, carthage
+# - SNAPSHOT     - will populate the new node from a snapshot file. The special value 'mainnet' causes
+#                  the script to download the latest mainnet snapshot from https://github.com/Phlogi/tezos-snapshots
+#                  and install that.
+#
+set -e # halt on error
 #
 # Minimum version of opam we should use. The script will check for this in /usr/local/bin and upgrade if necessary
 export MINIMUM_OPAM_VERSION=2.0.7
@@ -29,9 +38,11 @@ if [ -x /usr/local/bin/opam ]; then
     fi
 fi
 
+ARCH=`uname -m`
+
 if [ ! -z $NEED_OPAM ]; then
     echo "Installing new opam under /usr/local/bin"
-    sudo wget -O /usr/local/bin/opam https://github.com/ocaml/opam/releases/download/2.0.7/opam-$MINIMUM_OPAM_VERSION-x86_64-linux
+    sudo wget -O /usr/local/bin/opam https://github.com/ocaml/opam/releases/download/2.0.7/opam-$MINIMUM_OPAM_VERSION-$ARCH-linux
     sudo chmod 755 /usr/local/bin/opam
 fi
 
@@ -83,7 +94,9 @@ fi
 # - otherwise, try to restore from the file in the variable.
 if [ ! -z $SNAPSHOT ]; then
     if [ -f ~/.tezos-node/lock ] || [ -d ~/.tezos-node/store ] || [ -d ~/.tezos-node/context ]; then
-        echo "!!!!! Existing chain data will be overridden. Interrupt within 5 minutes to abort."
+	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        echo "!!!! Existing chain data will be overridden. Interrupt within 5 seconds to abort !!!!"
+	echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         sleep 5
         rm -rf ~/.tezos-node/context ~/.tezos-node/store ~/.tezos-node/lock
     fi
