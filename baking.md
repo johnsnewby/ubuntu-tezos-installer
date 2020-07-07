@@ -216,15 +216,3 @@ You private keys are located in:
 
 - /home/tezos/.tezos-node/identity.json
 - /home/tezos/.tezos-client/secret_keys.json
-
-
-## References
-- http://doc.tzalpha.net/introduction/howto.html
-- https://opam.ocaml.org/doc/Install.html
-- http://doc.tzalpha.net/whitedoc/proof_of_stake.html#proof-of-stake
-
-
-## Donate
-
-Feel free to donate TEZ to tz1THsLcunLo8CmDm9f2y1xHuXttXZCpyFnq or ETH to 0x18f081247ad32af38404d071eb8c246cc4f33534 or BTC to 13TRVwiqLMveg9aPAmZgcAix5ogKVgpe4T
-Baking.
