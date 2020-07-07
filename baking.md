@@ -10,7 +10,7 @@ This howto goes through the process of setting up baking on an Ubuntu Linux mach
 - building the node
 - creating an identity
 - for the testnet, getting and installing tokens from the faucet, and setting yourself up for baking
-- for the mainnet, WHAT FOR THE MAINNET MAKES NO SENSE
+- for the mainnet, TO COME
 - starting the baking pricess and connecting it to your local node.
 
 ## Setup
