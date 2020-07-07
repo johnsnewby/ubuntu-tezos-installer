@@ -1,6 +1,17 @@
 # Tezos baking howto
-This howto is valid for mainnet on Ubuntu or Debian
 
+## Overview
+
+This howto goes through the process of setting up baking on an Ubuntu Linux machine. The steps described are:
+- (optionally) creating a user, and switching to ut
+- cloning the repository containing the node
+- installing prerequisites
+- installing opam, the Ocaml package manager
+- building the node
+- creating an identity
+- for the testnet, getting and installing tokens from the faucet, and setting yourself up for baking
+- for the mainnet, WHAT FOR THE MAINNET MAKES NO SENSE
+- starting the baking pricess and connecting it to your local node.
 
 ## Setup
 
@@ -119,9 +130,9 @@ nohup ./tezos-node run --rpc-addr 127.0.0.1:8732
 
 ## Funding
 
-### Redeem a faucet (only for testnet)
+### Redeem a faucet (only for carthagenet)
 
-Get a faucet from https://faucet.tzalpha.net/ (it works both for zeronet and alphanet)
+Get a faucet from https://faucet.tzalpha.net/
 
 Then reedem the faucet:
 
@@ -133,7 +144,7 @@ Then reedem the faucet:
 You need to have enough tez in the delegate in order to bake. So if the balance is less than 10k, redeem another faucet.
 
 
-### Redeem your contribution (only betanet/mainnet)
+### Redeem your contribution (only for mainnet)
 
 First, activate your account using the kyc code:
 
