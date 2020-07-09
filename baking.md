@@ -3,7 +3,7 @@
 ## Overview
 
 This howto goes through the process of setting up baking on an Ubuntu Linux machine. The steps described are:
-- (optionally) creating a user, and switching to ut
+- (optionally) creating a user, and switching to it
 - cloning the repository containing the node
 - installing prerequisites
 - installing opam, the Ocaml package manager
