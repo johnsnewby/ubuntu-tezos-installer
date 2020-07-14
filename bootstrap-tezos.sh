@@ -42,7 +42,7 @@ ARCH=`uname -m`
 
 if [ ! -z $NEED_OPAM ]; then
     echo "Installing new opam under /usr/local/bin"
-git     sudo wget -O /usr/local/bin/opam https://github.com/ocaml/opam/releases/download/2.0.7/opam-$MINIMUM_OPAM_VERSION-$ARCH-linux
+    sudo wget -O /usr/local/bin/opam https://github.com/ocaml/opam/releases/download/2.0.7/opam-$MINIMUM_OPAM_VERSION-$ARCH-linux
     sudo chmod 755 /usr/local/bin/opam
 fi
 
