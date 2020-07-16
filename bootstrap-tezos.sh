@@ -40,6 +40,10 @@ fi
 
 ARCH=`uname -m`
 
+if [ $ARCH = "aarch64" ]; then
+   ARCH=arm64
+fi
+
 if [ ! -z $NEED_OPAM ]; then
     echo "Installing new opam under /usr/local/bin"
     sudo wget -O /usr/local/bin/opam https://github.com/ocaml/opam/releases/download/2.0.7/opam-$MINIMUM_OPAM_VERSION-$ARCH-linux
