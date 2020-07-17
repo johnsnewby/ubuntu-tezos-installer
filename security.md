@@ -44,16 +44,17 @@ PasswordAuthentication no
 and restart sshd:
 
 ```bash
-service sshd restar
+service sshd restart
 ```
 ### Firewall
 
 Even if your machine is behind a firewall, security in depth is a wonderful thing. The Linux operating system comes with the `iptables` firewall built in. Assuming your server is only baking and provides ssh access, the rules would be very simple and only need to be applied to the `INPUT` chain:
 
-```bash
+```
 iptables -F INPUT # flush
 iptables -A INPUT -i lo -j ACCEPT # allow connections to loopback device
-iptables -I INPUT -p tcp -m tcp --dport 22 -j ACCEPT # accept
+iptables -I INPUT -p tcp -m tcp --dport 53 -j ACCEPT # accept DNS
+iptables -I INPUT -p tcp -m tcp --dport 22 -j ACCEPT # allow ssh
 iptables -I INPUT -p tcp -m tcp --dport 8732 -j ACCEPT # accept
 iptables -I INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT -j REJECT
@@ -80,4 +81,15 @@ To make the rules persistent install the `iptables-persistent` package and save 
 ```bash
 apt install iptables-persistent
 iptables-save > /etc/iptables/rules.v4
+```
+
+At this stage I would reboot and check that the firewall rules have been saved, with `iptables -L` -- the output should look like this
+
+```
+iptables -F INPUT # flush
+iptables -A INPUT -i lo -j ACCEPT # allow connections to loopback device
+iptables -I INPUT -p tcp -m tcp --dport 22 -j ACCEPT # accept
+iptables -I INPUT -p tcp -m tcp --dport 8732 -j ACCEPT # accept
+iptables -I INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -j REJECT
 ```
