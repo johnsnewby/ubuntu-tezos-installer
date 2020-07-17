@@ -53,9 +53,10 @@ Even if your machine is behind a firewall, security in depth is a wonderful thin
 ```
 iptables -F INPUT # flush
 iptables -A INPUT -i lo -j ACCEPT # allow connections to loopback device
-iptables -I INPUT -p tcp -m tcp --dport 53 -j ACCEPT # accept DNS
-iptables -I INPUT -p tcp -m tcp --dport 22 -j ACCEPT # allow ssh
-iptables -I INPUT -p tcp -m tcp --dport 8732 -j ACCEPT # accept
+iptables -I INPUT -p tcp --dport 53 -j ACCEPT # accept DNS
+iptables -I INPUT -p tcp --dport 22 -j ACCEPT # allow ssh
+iptables -I INPUT -p tcp --dport 8732 -j ACCEPT # accept
+iptables -I INPUT -p udp --sport 53 -j ACCEPT
 iptables -I INPUT -p tcp -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT -j REJECT
 ```
