@@ -30,7 +30,7 @@ ssh-copy-id -i ~/.ssh/id_ed25519.pub user@host
 ```
 where `user` is your username and `host` the hostname of the remote server.
 
-ssh to the remote machine to check that you have passwordless access before attempting the next step!
+ssh to the remote machine to check that you have passwordless access before attempting the next s````````````````````````````````````````````````````````````````````````````````ststep!
 
 In the file `/etc/ssh/sshd_config` change the line
 ```bash
