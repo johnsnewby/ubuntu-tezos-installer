@@ -144,30 +144,9 @@ Then reedem the faucet:
 You need to have enough tez in the delegate in order to bake. So if the balance is less than 10k, redeem another faucet.
 
 
-### Redeem your contribution (only for mainnet)
+### Mainnet
 
-First, activate your account using the kyc code:
-
-```bash
-./tezos-client add address fundraiser <tz1...>
-./tezos-client activate fundraiser account fundraiser with <activation_key>
-```
-
-You can check if the account has been activated by getting its balance:
-
-```bash
-./tezos-client get balance for fundraiser
-```
-
-Then in order to access your funds importing your private key type the following command and write your private data when asked:
-
-```bash
-./tezos-client import fundraiser secret key "my_account"
-```
-
-Please be careful, you are importing your tezos private keys!
-
-
+On mainnet you will need to acquire XTZ by some other method.
 
 ## Baking
 
