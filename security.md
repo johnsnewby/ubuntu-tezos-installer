@@ -30,7 +30,7 @@ ssh-copy-id -i ~/.ssh/id_ed25519.pub user@host
 ```
 where `user` is your username and `host` the hostname of the remote server.
 
-ssh to the remote machine to check that you have passwordless access before attempting the next s````````````````````````````````````````````````````````````````````````````````ststep!
+ssh to the remote machine to check that you have passwordless access before attempting the next ststep!
 
 In the file `/etc/ssh/sshd_config` change the line
 ```bash
@@ -103,6 +103,14 @@ To come, nebula is the best for this
 
 ### Sharing ledger using USB over IP
 
+Advantages:
+    - works with all software, including Kiln
+    - that's it.
+
+Disadvantages
+    - fiddly to set up
+    - not super reliable
+
 One of the less-known abilities of Linux is to share USB devices over IP. Although it's a little fiddly to set up it turns out to work well. Here are step-by-step instructions. The files [mount-remote-ledger.sh](mount-remote-ledgers.sh) and [share-ledger.sh](share-ledger.sh) in this repository automate much of this.
 
 On both source and destination machines, install the modules and tools to support USB over IP. These are specific to your kernel version; the easiest way to know which packages are required is to attempt to use the `usbip` command and see what the OS tells you to install. My system required `linux-tools-5.4.0-1008-raspi` and `linux-cloud-tools-raspi` but YMMV.
@@ -134,8 +142,10 @@ The ledger is the device with ID 2c97:0001. It is unclear why Linux thinks it's 
 In any case we now know what its USB id is (1.1-1) and so we can bind it:
 
 ```bash
+sudo modprobe usbip-host # needed to serve USB
 sudo usbip bind -b 1-1.1
 usbip: info: bind device on busid 1-1.1: complete
+sudo usbipd -D # run server process
 ```
 
 Now we can
@@ -172,8 +182,8 @@ I had to reboot after this step in order for it to take effect.
  and now I mount the USB device -- there is [a script for this](mount-remote-ledger.sh):
 
  ```bash
- sudo modprobe vhci-hcd
- sudo usbip attach -r 127.0.0.1 -b 1-1.1
+sudo modprobe vhci-hcd
+sudo usbip attach -r 127.0.0.1 -b 1-1.1
 ```
 
 and I can see the attached device using tezos-client:
@@ -200,4 +210,58 @@ of:
   tezos-client import secret key ledger_newby "ledger://drafty-fox-kindly-tiffany/secp256k1/0h/0h"
   tezos-client import secret key ledger_newby "ledger://drafty-fox-kindly-tiffany/P-256/0h/0h"
 
+```
+
+## Using the remote signer
+
+Advantages:
+    - the right way to do it
+
+Disadvantages
+    - Fiddly to set up (but what isn't)
+
+### Set up signer
+
+```bash
+./tezos-latest-release/tezos-signer import secret key ledger_newby "ledger://drafty-fox-kindly-tiffany/ed25519/0h/0h"
+Please validate (and write down) the public key hash displayed on the Ledger,
+it should be equal
+to `tz1hf83sreSbzof7WakXiNbjizWVHwDyHFJi`:
+Tezos address added: tz1hf83sreSbzof7WakXiNbjizWVHwDyHFJi
+ubuntu@ubuntu:~$ ./tezos-latest-release/tezos-signer launch http signer
+```
+
+and on the baking machine:
+
+```bash
+./tezos-client import secret key ledger_ubuntu http://127.0.0.1:6732/tz1hf83sreSbzof7WakXiNbjizWVHwDyHFJi --force
+Warning:
+
+                 This is NOT the Tezos Mainnet.
+
+     The node you are connecting to claims to be running on the
+               Tezos Alphanet DEVELOPMENT NETWORK.
+          Do NOT use your fundraiser keys on this network.
+          Alphanet is a testing network, with free tokens.
+
+Tezos address added: tz1hf83sreSbzof7WakXiNbjizWVHwDyHFJi
+```
+
+Output on signing machine:
+```bash
+Jul 22 06:54:05 - client.signer: Request for public key tz1hf83sreSbzof7WakXiNbjizWVHwDyHFJi
+Jul 22 06:54:05 - client.signer: Found public key for hash tz1hf83sreSbzof7WakXiNbjizWVHwDyHFJi (name: ledger_newby)
+```
+
+Now we run the endorser:
+ ```bash
+newby@ubuntu-16gb-nbg1-1:~/tezos-latest-release$ ./tezos-endorser-006-PsCARTHA run ledger_ubuntu                                                Waiting for the node to be synchronized with its peers...
+Node synchronized.
+Endorser started.
+Jul 22 09:06:56 - 006-PsCARTHA.baking.endorsement: Injected endorsement for block 'BLp33yGsCNMM' (level 586146, contract ledger_ubuntu) 'opUUcXzRgKyWb9EQs1GMt9wsx1aaFxhhsMrRPbP8tGnpDThTJ51'
+ ```
+and we see on the signing machine:
+```bash
+ Jul 22 07:06:54 - client.signer: Request for signing 42 bytes of data for key tz1hf83sreSbzof7WakXiNbjizWVHwDyHFJi, magic byte = 02
+Jul 22 07:06:54 - client.signer: Signing data for key ledger_newby
 ```
